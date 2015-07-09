@@ -27,6 +27,8 @@ class Profile(ndb.Model):
     mainEmail = ndb.StringProperty()
     teeShirtSize = ndb.StringProperty(default='NOT_SPECIFIED')
     conferenceKeysToAttend = ndb.StringProperty(repeated=True)
+    sessionsKeysToAttend = ndb.StringProperty(repeated=True)
+
 
 class ProfileMiniForm(messages.Message):
     """ProfileMiniForm -- update Profile form message"""
@@ -39,6 +41,7 @@ class ProfileForm(messages.Message):
     mainEmail = messages.StringField(2)
     teeShirtSize = messages.EnumField('TeeShirtSize', 3)
     conferenceKeysToAttend = messages.StringField(4, repeated=True)
+    sesssionKeysToAttend = messages.StringField(5, repeated=True)
 
 class StringMessage(messages.Message):
     """StringMessage-- outbound (single) string message"""
@@ -107,4 +110,27 @@ class ConferenceQueryForm(messages.Message):
 class ConferenceQueryForms(messages.Message):
     """ConferenceQueryForms -- multiple ConferenceQueryForm inbound form message"""
     filters = messages.MessageField(ConferenceQueryForm, 1, repeated=True)
+
+
+# - - - Sessions - - - - - - - - - - - - - - - - -
+
+class Session(ndb.Model):
+    """Session -- Conference Session object"""
+    name            = ndb.StringProperty(required=True)
+    description     = ndb.StringProperty()
+    speakerUserId   = ndb.StringProperty(required=True)
+    dateTime        = ndb.DateTimeProperty()  # includes both date and start time
+    maxAttendees    = ndb.IntegerProperty()
+    seatsAvailable  = ndb.IntegerProperty()
+
+
+class SessionForm(messages.Message):
+    """SessionForm -- Session outbound form message"""
+    name            = messages.StringField(1)
+    highlights      = messages.StringField(2)
+    speaker         = messages.StringField(3)
+    duration        = messages.IntegerField(4) # duration in minutes
+    typeOfSession   = messages.StringField(5)
+    date            = messages.StringField(6) # DateTimeField()
+    startTime       = messages.StringField(7) # in 24 hour notation (ie 14:30, 9:15)
 
