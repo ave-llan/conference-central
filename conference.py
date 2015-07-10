@@ -36,6 +36,9 @@ from models import ConferenceForms
 from models import ConferenceQueryForm
 from models import ConferenceQueryForms
 from models import TeeShirtSize
+from models import Session
+from models import SessionForm
+
 
 from settings import WEB_CLIENT_ID
 from settings import ANDROID_CLIENT_ID
@@ -56,6 +59,11 @@ DEFAULTS = {
     "maxAttendees": 0,
     "seatsAvailable": 0,
     "topics": [ "Default", "Topic" ],
+}
+
+SESSION_DEFAULTS = {
+    "maxAttendees": 0,
+    "durationMinutes": 0
 }
 
 OPERATORS = {
@@ -550,5 +558,55 @@ class ConferenceApi(remote.Service):
             items=[self._copyConferenceToForm(conf, "") for conf in q]
         )
 
+# - - - Sessions - - - - - - - - - - - - - - - - - - - -
+
+        #prof = self._getProfileFromUser() # get user Profile
+
+    def _createSessionObject(self, request):
+        """Create or update Session object, returning ConferenceForm/request."""
+        # preload necessary data items
+        prof = self._getProfileFromUser() # get user Profile
+
+        if not request.name:
+            raise endpoints.BadRequestException("Session 'name' field required")
+        if not request.conferenceId:
+            raise endpoints.BadRequestException("Session 'conferenceId' field required")
+
+        # copy ConferenceForm/ProtoRPC Message into dict
+        data = {field.name: getattr(request, field.name) for field in request.all_fields()}
+
+        print 'data:'
+        print data
+
+        # add default values for those missing (both data model & outbound Message)
+        for df in SESSION_DEFAULTS:
+            if data[df] in (None, []):
+                data[df] = DEFAULTS[df]
+                setattr(request, df, DEFAULTS[df])
+
+        # convert dates from strings to DateTime objects
+        if data['dateTime']:
+            data['dateTime'] = datetime.strptime(data['dateTime'][:16], "%Y-%m-%dT%H:%M")
+
+        # set seatsAvailable to be same as maxAttendees on creation
+        # it defaults to 0 by SESSION_DEFAULTS
+        data["seatsAvailable"] = data["maxAttendees"]
+
+        print 'data with defaults filled:'
+        print data
+
+
+        # create Conference, send email to organizer confirming
+        # creation of Conference & return (modified) ConferenceForm
+        Session(**data).put()
+        return request
+
+
+
+    @endpoints.method(SessionForm, SessionForm, path='session',
+            http_method='POST', name='createSession')
+    def createSession(self, request):
+        """Create new session."""
+        return self._createSessionObject(request)
 
 api = endpoints.api_server([ConferenceApi]) # register API
