@@ -141,5 +141,10 @@ class SessionForms(messages.Message):
     """SessionForms -- multiple Session outbound form message"""
     items = messages.MessageField(SessionForm, 1, repeated=True)
 
+class SessionByType(messages.Message):
+    """SessionByType -- getConferenceSessionsByType inbound form message"""
+    conferenceId    = messages.StringField(1)
+    typeOfSession   = messages.StringField(2)
+
 
 

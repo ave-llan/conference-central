@@ -39,6 +39,7 @@ from models import TeeShirtSize
 from models import Session
 from models import SessionForm
 from models import SessionForms
+from models import SessionByType
 
 
 from settings import WEB_CLIENT_ID
@@ -647,8 +648,27 @@ class ConferenceApi(remote.Service):
         if not conference_key:
             raise endpoints.NotFoundException(
                 'No conference found with key: %s' % request.websafeConferenceKey)
-            
+
         sessions = Session.query(ancestor=conference_key)
+
+        # return set of SessionForm objects associated with this Conference
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
+
+    @endpoints.method(SessionByType, SessionForms, path='getConferenceSessionsByType',
+            http_method='GET', name='getConferenceSessionsByType')
+    def getConferenceSessionsByType(self, request):
+        """Given a conference (by websafeConferenceKey), and a topic,
+            return all matching sessions
+        """ 
+        conference_key = ndb.Key(urlsafe=request.conferenceId)
+        if not conference_key:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' % request.conferenceId)
+
+        sessions = Session.query(Session.typeOfSession == request.typeOfSession,
+                        ancestor=conference_key)
 
         # return set of SessionForm objects associated with this Conference
         return SessionForms(
