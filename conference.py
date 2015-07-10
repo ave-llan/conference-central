@@ -38,6 +38,7 @@ from models import ConferenceQueryForms
 from models import TeeShirtSize
 from models import Session
 from models import SessionForm
+from models import SessionForms
 
 
 from settings import WEB_CLIENT_ID
@@ -560,7 +561,19 @@ class ConferenceApi(remote.Service):
 
 # - - - Sessions - - - - - - - - - - - - - - - - - - - -
 
-        #prof = self._getProfileFromUser() # get user Profile
+    def _copySessionToForm(self, session):
+        """Copy relevant fields from Session to SessionForm."""
+        sf = SessionForm()
+        for field in sf.all_fields():
+            if hasattr(session, field.name):
+                # convert Date to date string; just copy others
+                if field.name == 'dateTime':
+                    setattr(sf, field.name, str(session.dateTime))
+                else:
+                    setattr(sf, field.name, getattr(session, field.name))
+        sf.check_initialized()
+        return sf
+
 
     def _createSessionObject(self, request):
         """Create or update Session object, returning ConferenceForm/request."""
@@ -622,5 +635,24 @@ class ConferenceApi(remote.Service):
         """Create new session."""
         return self._createSessionObject(request)
 
+
+    @endpoints.method(CONF_GET_REQUEST, SessionForms,
+            path='conference/{websafeConferenceKey}/sessions',
+            http_method='GET', name='getConferenceSessions')
+    def getConferenceSessions(self, request):
+        """Given a conference (by websafeConferenceKey), Return all its sessions."""
+
+        # get Conference object from request; bail if not found
+        conference_key = ndb.Key(urlsafe=request.websafeConferenceKey)
+        if not conference_key:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' % request.websafeConferenceKey)
+            
+        sessions = Session.query(ancestor=conference_key)
+
+        # return set of SessionForm objects associated with this Conference
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
 
 api = endpoints.api_server([ConferenceApi]) # register API

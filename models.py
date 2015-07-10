@@ -137,7 +137,9 @@ class SessionForm(messages.Message):
     typeOfSession   = messages.StringField(7)
     highlights      = messages.StringField(8)  # description of why someone might want to attend
 
-
+class SessionForms(messages.Message):
+    """SessionForms -- multiple Session outbound form message"""
+    items = messages.MessageField(SessionForm, 1, repeated=True)
 
 
 
