@@ -572,6 +572,12 @@ class ConferenceApi(remote.Service):
         if not request.conferenceId:
             raise endpoints.BadRequestException("Session 'conferenceId' field required")
 
+        # check to make sure given conference is valid
+        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
+        if not conf:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' % request.websafeConferenceKey)
+
         # copy ConferenceForm/ProtoRPC Message into dict
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
 
@@ -602,11 +608,11 @@ class ConferenceApi(remote.Service):
         return request
 
 
-
     @endpoints.method(SessionForm, SessionForm, path='session',
             http_method='POST', name='createSession')
     def createSession(self, request):
         """Create new session."""
         return self._createSessionObject(request)
+
 
 api = endpoints.api_server([ConferenceApi]) # register API
