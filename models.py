@@ -118,7 +118,7 @@ class Session(ndb.Model):
     """Session -- Conference Session object"""
     name            = ndb.StringProperty(required=True)
     description     = ndb.StringProperty()
-    speakerUserId   = ndb.StringProperty(required=True)
+    speakerUserId   = ndb.StringProperty()
     dateTime        = ndb.DateTimeProperty()  # includes both date and start time
     maxAttendees    = ndb.IntegerProperty()
     seatsAvailable  = ndb.IntegerProperty()
