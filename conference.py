@@ -564,25 +564,32 @@ class ConferenceApi(remote.Service):
 
     def _createSessionObject(self, request):
         """Create or update Session object, returning ConferenceForm/request."""
-        # preload necessary data items
-        prof = self._getProfileFromUser() # get user Profile
+        # get user id 
+        user = endpoints.get_current_user()
+        if not user:
+            raise endpoints.UnauthorizedException('Authorization required')
+        user_id = getUserId(user)
 
+        # check to make sure required fields are present
         if not request.name:
             raise endpoints.BadRequestException("Session 'name' field required")
         if not request.conferenceId:
             raise endpoints.BadRequestException("Session 'conferenceId' field required")
 
-        # check to make sure given conference is valid
-        conf = ndb.Key(urlsafe=request.websafeConferenceKey).get()
-        if not conf:
+        # check to make sure given conference is an actual conference
+        conference_key = ndb.Key(urlsafe=request.conferenceId)
+        if not conference_key:
             raise endpoints.NotFoundException(
-                'No conference found with key: %s' % request.websafeConferenceKey)
+                'No conference found with key: %s' % request.conferenceId)
+
+        # check to make sure user is owner of this conference
+        conference = conference_key.get()
+        if user_id != conference.organizerUserId:
+            raise endpoints.ForbiddenException(
+                'Only the owner can update the conference.')
 
         # copy ConferenceForm/ProtoRPC Message into dict
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
-
-        print 'data:'
-        print data
 
         # add default values for those missing (both data model & outbound Message)
         for df in SESSION_DEFAULTS:
@@ -595,15 +602,16 @@ class ConferenceApi(remote.Service):
             data['dateTime'] = datetime.strptime(data['dateTime'][:16], "%Y-%m-%dT%H:%M")
 
         # set seatsAvailable to be same as maxAttendees on creation
-        # it defaults to 0 by SESSION_DEFAULTS
+        # it defaults to 0 if not provided in request
         data["seatsAvailable"] = data["maxAttendees"]
 
-        print 'data with defaults filled:'
-        print data
+        # generate Session Key based on conference ID and Session
 
+        session_id = Session.allocate_ids(size=1, parent=conference_key)[0]
+        session_key = ndb.Key(Session, session_id, parent=conference_key)
+        data['key'] = session_key
 
-        # create Conference, send email to organizer confirming
-        # creation of Conference & return (modified) ConferenceForm
+        # create Session & return (modified) ConferenceForm
         Session(**data).put()
         return request
 
