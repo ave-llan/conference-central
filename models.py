@@ -29,7 +29,6 @@ class Profile(ndb.Model):
     conferenceKeysToAttend = ndb.StringProperty(repeated=True)
     sessionsKeysToAttend = ndb.StringProperty(repeated=True)
 
-
 class ProfileMiniForm(messages.Message):
     """ProfileMiniForm -- update Profile form message"""
     displayName = messages.StringField(1)
@@ -117,20 +116,28 @@ class ConferenceQueryForms(messages.Message):
 class Session(ndb.Model):
     """Session -- Conference Session object"""
     name            = ndb.StringProperty(required=True)
-    description     = ndb.StringProperty()
+    conferenceId    = ndb.StringProperty(required=True)
     speakerUserId   = ndb.StringProperty()
     dateTime        = ndb.DateTimeProperty()  # includes both date and start time
+    durationMinutes = ndb.IntegerProperty()
     maxAttendees    = ndb.IntegerProperty()
-    seatsAvailable  = ndb.IntegerProperty()
+    seatsAvailable  = ndb.IntegerProperty()   
+    typeOfSession   = ndb.StringProperty()
+    highlights      = ndb.StringProperty()    # description of why someone might want to attend 
 
 
 class SessionForm(messages.Message):
     """SessionForm -- Session outbound form message"""
     name            = messages.StringField(1)
-    highlights      = messages.StringField(2)
-    speaker         = messages.StringField(3)
-    duration        = messages.IntegerField(4) # duration in minutes
-    typeOfSession   = messages.StringField(5)
-    date            = messages.StringField(6) # DateTimeField()
-    startTime       = messages.StringField(7) # in 24 hour notation (ie 14:30, 9:15)
+    conferenceId    = messages.StringField(2)
+    speakerUserId   = messages.StringField(3)
+    dateTime        = messages.StringField(4)  # DateTimeField() includes both date AND time
+    durationMinutes = messages.IntegerField(5) # duration of Session in minutes
+    maxAttendees    = messages.IntegerField(6)
+    typeOfSession   = messages.StringField(7)
+    highlights      = messages.StringField(8)  # description of why someone might want to attend
+
+
+
+
 
