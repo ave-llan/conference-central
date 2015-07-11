@@ -1,4 +1,6 @@
-App Engine application for the Udacity training course.
+A cloud-based API backend server for a Conference organization application. Built in Google App Engine and designed to be platform agnostic. 
+
+The API supports user authentication, user profiles, conference information, registration, and a number of ways in which to query the data. 
 
 ## Products
 - [App Engine][1]
@@ -14,7 +16,7 @@ App Engine application for the Udacity training course.
 ### Sessions
 Session objects are children of conference objects and can be created by the organizer of the conference. 
 
-Speakers at sessions must be registered users with a Profile just like attendees, so  `Session.speaker` simply points to a user_id. Just like Conferences, Sessions have a `maxAttendees` property and a `seatsAvailable` count which decrements as attendees register for the session.
+Speakers at sessions must be registered users with a Profile just like attendees, so  `Session.speaker` simply points to a user_id (via the `speakerUserId` attribute). Just like Conferences, Sessions have a `maxAttendees` property and a `seatsAvailable` count which decrements as attendees register for the session.
 
 
 ### Profile
