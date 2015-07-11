@@ -13,6 +13,13 @@ The API supports user authentication, user profiles, conference information, reg
 
 # Design Choices
 
+### Conferences
+Conference objects are children of a specific user and only that user may edit the conference. 
+
+Conference objects have a `maxAttendees` property and a `seatsAvailable` count which decrements as attendees register for the Conference. 
+
+The remaining attributes are: description, topics, city, startDate, endDate, and month. All of these attributes may be used to query for and filter conferences. 
+
 ### Sessions
 Session objects are children of conference objects and can be created by the organizer of the conference. 
 
