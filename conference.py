@@ -708,4 +708,30 @@ class ConferenceApi(remote.Service):
         # return ConferenceForm
         return self._copySessionToForm(session)
 
+    @endpoints.method(SESSION_GET_REQUEST, BooleanMessage,
+            path='session/{websafeSessionKey}/addToWishlist',
+            http_method='POST', name='addSessionToWishlist')
+    def addSessionToWishlist(self, request):
+        """Add session to users wishlist (by websafeSessionKey)."""
+
+        websafeSessionKey = request.websafeSessionKey
+        profile = self._getProfileFromUser() # get user Profile
+        session = ndb.Key(urlsafe=websafeSessionKey).get()
+        if not session:
+            raise endpoints.NotFoundException(
+                'No session found with key: %s' % websafeSessionKey)
+
+        # add to wishlist
+        # check if user session already on wishlist; otherwise add
+        if websafeSessionKey in profile.sessionsKeysWishlist:
+            raise ConflictException(
+                "You have already added this session to your wishlist")
+
+        # add session to user wishlist & write back to datastore
+        profile.sessionsKeysWishlist.append(websafeSessionKey)
+        profile.put()
+        # return True for success
+        return BooleanMessage(data=True)
+
+
 api = endpoints.api_server([ConferenceApi]) # register API
