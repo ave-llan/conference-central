@@ -90,6 +90,11 @@ CONF_GET_REQUEST = endpoints.ResourceContainer(
     websafeConferenceKey=messages.StringField(1),
 )
 
+SESSION_GET_REQUEST = endpoints.ResourceContainer(
+    message_types.VoidMessage,
+    websafeSessionKey=messages.StringField(1),
+)
+
 CONF_POST_REQUEST = endpoints.ResourceContainer(
     ConferenceForm,
     websafeConferenceKey=messages.StringField(1),
@@ -690,5 +695,17 @@ class ConferenceApi(remote.Service):
             items=[self._copySessionToForm(session) for session in sessions]
         )
 
+    @endpoints.method(SESSION_GET_REQUEST, SessionForm,
+            path='session/{websafeSessionKey}',
+            http_method='GET', name='getSession')
+    def getSession(self, request):
+        """Return requested session (by websafeSessionKey)."""
+        # get Session object from request; bail if not found
+        session = ndb.Key(urlsafe=request.websafeSessionKey).get()
+        if not session:
+            raise endpoints.NotFoundException(
+                'No session found with key: %s' % request.websafeSessionKey)
+        # return ConferenceForm
+        return self._copySessionToForm(session)
 
 api = endpoints.api_server([ConferenceApi]) # register API
