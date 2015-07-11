@@ -750,5 +750,25 @@ class ConferenceApi(remote.Service):
         return SessionForms(items=[self._copySessionToForm(session) for session in sessions]
         )
 
+    @endpoints.method(CONF_GET_REQUEST, SessionForms,
+            path='conference/{websafeConferenceKey}/sessionsWithSeatsAvailable',
+            http_method='GET', name='getSessionsWithSeatsAvailable')
+    def getSessionsWithSeatsAvailable(self, request):
+        """Given a conference (by websafeConferenceKey), Return all its sessions."""
+
+        # get Conference object from request; bail if not found
+        conference_key = ndb.Key(urlsafe=request.websafeConferenceKey)
+        if not conference_key:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' % request.websafeConferenceKey)
+
+        sessions = Session.query(ancestor=conference_key) \
+                .order(Session.seatsAvailable) \
+                .filter(Session.seatsAvailable > 0)
+
+        # return set of SessionForm objects associated with this Conference
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
 
 api = endpoints.api_server([ConferenceApi]) # register API
