@@ -612,13 +612,15 @@ class ConferenceApi(remote.Service):
 
         # copy ConferenceForm/ProtoRPC Message into dict
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
+        
+        # delete webSafeKey which is not an attribute of Session and only used for outbound form 
+        del data['websafeKey']
 
         # add default values for those missing (both data model & outbound Message)
         for df in SESSION_DEFAULTS:
             if data[df] in (None, []):
                 data[df] = DEFAULTS[df]
                 setattr(request, df, DEFAULTS[df])
-
         # convert dates from strings to DateTime objects
         if data['dateTime']:
             data['dateTime'] = datetime.strptime(data['dateTime'][:16], "%Y-%m-%dT%H:%M")
@@ -634,8 +636,9 @@ class ConferenceApi(remote.Service):
         data['key'] = session_key
 
         # create Session & return (modified) ConferenceForm
-        Session(**data).put()
-        return request
+        newSession = Session(**data)
+        newSession.put()
+        return self._copySessionToForm(newSession)
 
 
     @endpoints.method(SessionForm, SessionForm, path='session',
@@ -746,5 +749,6 @@ class ConferenceApi(remote.Service):
         # return set of SessionForm objects
         return SessionForms(items=[self._copySessionToForm(session) for session in sessions]
         )
+
 
 api = endpoints.api_server([ConferenceApi]) # register API
