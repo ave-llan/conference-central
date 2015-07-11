@@ -734,4 +734,17 @@ class ConferenceApi(remote.Service):
         return BooleanMessage(data=True)
 
 
+    @endpoints.method(message_types.VoidMessage, SessionForms,
+            path='sessions/wishlist',
+            http_method='GET', name='getSessionsInWishlist')
+    def getSessionsInWishlist(self, request):
+        """Get list of sessions that user has in wish list"""
+        profile = self._getProfileFromUser() # get user Profile
+        session_keys = [ndb.Key(urlsafe=websafeKey) for websafeKey in profile.sessionsKeysWishlist]
+        sessions = ndb.get_multi(session_keys)
+
+        # return set of SessionForm objects
+        return SessionForms(items=[self._copySessionToForm(session) for session in sessions]
+        )
+
 api = endpoints.api_server([ConferenceApi]) # register API
