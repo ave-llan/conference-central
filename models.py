@@ -23,24 +23,24 @@ class ConflictException(endpoints.ServiceException):
 
 class Profile(ndb.Model):
     """Profile -- User profile object"""
-    displayName = ndb.StringProperty()
-    mainEmail = ndb.StringProperty()
-    teeShirtSize = ndb.StringProperty(default='NOT_SPECIFIED')
+    displayName            = ndb.StringProperty()
+    mainEmail              = ndb.StringProperty()
+    teeShirtSize           = ndb.StringProperty(default='NOT_SPECIFIED')
     conferenceKeysToAttend = ndb.StringProperty(repeated=True)
-    sessionsKeysToAttend = ndb.StringProperty(repeated=True)
+    sessionsKeysToAttend   = ndb.StringProperty(repeated=True)
 
 class ProfileMiniForm(messages.Message):
     """ProfileMiniForm -- update Profile form message"""
-    displayName = messages.StringField(1)
+    displayName  = messages.StringField(1)
     teeShirtSize = messages.EnumField('TeeShirtSize', 2)
 
 class ProfileForm(messages.Message):
     """ProfileForm -- Profile outbound form message"""
-    displayName = messages.StringField(1)
-    mainEmail = messages.StringField(2)
-    teeShirtSize = messages.EnumField('TeeShirtSize', 3)
+    displayName            = messages.StringField(1)
+    mainEmail              = messages.StringField(2)
+    teeShirtSize           = messages.EnumField('TeeShirtSize', 3)
     conferenceKeysToAttend = messages.StringField(4, repeated=True)
-    sesssionKeysToAttend = messages.StringField(5, repeated=True)
+    sessionsKeysToAttend   = messages.StringField(5, repeated=True)
 
 class StringMessage(messages.Message):
     """StringMessage-- outbound (single) string message"""
