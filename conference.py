@@ -40,6 +40,7 @@ from models import Session
 from models import SessionForm
 from models import SessionForms
 from models import SessionByType
+from models import SessionBySpeaker
 
 
 from settings import WEB_CLIENT_ID
@@ -660,7 +661,7 @@ class ConferenceApi(remote.Service):
             http_method='GET', name='getConferenceSessionsByType')
     def getConferenceSessionsByType(self, request):
         """Given a conference (by websafeConferenceKey), and a topic,
-            return all matching sessions
+            return all matching sessions.
         """ 
         conference_key = ndb.Key(urlsafe=request.conferenceId)
         if not conference_key:
@@ -674,5 +675,18 @@ class ConferenceApi(remote.Service):
         return SessionForms(
             items=[self._copySessionToForm(session) for session in sessions]
         )
+
+    @endpoints.method(SessionBySpeaker, SessionForms, path='getSessionsBySpeaker',
+            http_method='GET', name='getSessionsBySpeaker')
+    def getSessionsBySpeaker(self, request):
+        """Given a speakerUserId, return all sessions by this speaker."""
+
+        sessions = Session.query(Session.speakerUserId == request.speakerUserId)
+
+        # return set of SessionForm objects associated with this Conference
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
+
 
 api = endpoints.api_server([ConferenceApi]) # register API

@@ -146,5 +146,8 @@ class SessionByType(messages.Message):
     conferenceId    = messages.StringField(1)
     typeOfSession   = messages.StringField(2)
 
+class SessionBySpeaker(messages.Message):
+    """SessionBySpeaker -- getSessionsBySpeaker inbound form message"""
+    speakerUserId   = messages.StringField(1)
 
 
