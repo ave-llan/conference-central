@@ -573,6 +573,8 @@ class ConferenceApi(remote.Service):
                     setattr(sf, field.name, str(session.dateTime))
                 else:
                     setattr(sf, field.name, getattr(session, field.name))
+            elif field.name == "websafeKey":
+                setattr(sf, field.name, session.key.urlsafe())
         sf.check_initialized()
         return sf
 

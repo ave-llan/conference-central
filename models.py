@@ -136,6 +136,7 @@ class SessionForm(messages.Message):
     maxAttendees    = messages.IntegerField(6)
     typeOfSession   = messages.StringField(7)
     highlights      = messages.StringField(8)  # description of why someone might want to attend
+    websafeKey      = messages.StringField(9)
 
 class SessionForms(messages.Message):
     """SessionForms -- multiple Session outbound form message"""
