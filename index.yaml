@@ -98,4 +98,9 @@ indexes:
 - kind: Session
   ancestor: yes
   properties:
+  - name: dateTime
+
+- kind: Session
+  ancestor: yes
+  properties:
   - name: seatsAvailable

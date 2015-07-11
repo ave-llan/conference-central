@@ -41,6 +41,7 @@ from models import SessionForm
 from models import SessionForms
 from models import SessionByType
 from models import SessionBySpeaker
+from models import SessionsInTimeWindow
 
 
 from settings import WEB_CLIENT_ID
@@ -49,6 +50,9 @@ from settings import IOS_CLIENT_ID
 from settings import ANDROID_AUDIENCE
 
 from utils import getUserId
+
+# for checking datetime input format
+import re
 
 EMAIL_SCOPE = endpoints.EMAIL_SCOPE
 API_EXPLORER_CLIENT_ID = endpoints.API_EXPLORER_CLIENT_ID
@@ -770,5 +774,45 @@ class ConferenceApi(remote.Service):
         return SessionForms(
             items=[self._copySessionToForm(session) for session in sessions]
         )
+
+
+    @endpoints.method(SessionsInTimeWindow, SessionForms,
+            path='conference/{websafeConferenceKey}/sessionsInTimeWindow',
+            http_method='GET', name='getSessionsInTimeWindow')
+    def getSessionsInTimeWindow(self, request):
+        """Given a conference (by websafeConferenceKey) return all sessions
+        in time window"""
+
+        # get Conference object from request; bail if not found
+        conference_key = ndb.Key(urlsafe=request.websafeConferenceKey)
+        if not conference_key:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' % request.websafeConferenceKey)
+        # check that inbound times are formatted correctly
+        # regular expression to match time format: '2015-10-11T14:30'
+        timeFormat = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}")
+        # check to make sure required fields are present and formatted correctly
+        if timeFormat.match(request.startTimeWindow) is None:
+            raise endpoints.BadRequestException("startTimeWindow field not formatted correctly")
+        if timeFormat.match(request.endTimeWindow) is None:
+            raise endpoints.BadRequestException("endTimeWindow field not formatted correctly")
+
+        # convert string times to datetime instances for comparison
+        start = datetime.strptime(request.startTimeWindow[:16], "%Y-%m-%dT%H:%M")
+        end   = datetime.strptime(request.endTimeWindow[:16],   "%Y-%m-%dT%H:%M")
+
+        # get sessions that start within the window
+        sessions = Session.query(ancestor=conference_key) \
+                .order(Session.dateTime) \
+                .filter(Session.dateTime >= start, Session.dateTime < end)
+
+        # TODO only add sessions that finish within the window
+
+
+        # return set of SessionForm objects associated with this Conference
+        return SessionForms(
+            items=[self._copySessionToForm(session) for session in sessions]
+        )
+
 
 api = endpoints.api_server([ConferenceApi]) # register API

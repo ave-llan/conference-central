@@ -154,4 +154,8 @@ class SessionBySpeaker(messages.Message):
     """SessionBySpeaker -- getSessionsBySpeaker inbound form message"""
     speakerUserId   = messages.StringField(1)
 
-
+class SessionsInTimeWindow(messages.Message):
+    """SessionsInTimeWindow -- getSessionsInTimeWindow inbound form message"""
+    startTimeWindow      = messages.StringField(1)
+    endTimeWindow        = messages.StringField(2)
+    websafeConferenceKey = messages.StringField(3)
