@@ -136,9 +136,10 @@ class SessionForm(messages.Message):
     dateTime        = messages.StringField(4)  # DateTimeField() includes both date AND time
     durationMinutes = messages.IntegerField(5) # duration of Session in minutes
     maxAttendees    = messages.IntegerField(6)
-    typeOfSession   = messages.StringField(7)
-    highlights      = messages.StringField(8)  # description of why someone might want to attend
-    websafeKey      = messages.StringField(9)
+    seatsAvailable  = messages.IntegerField(7)  
+    typeOfSession   = messages.StringField(8)
+    highlights      = messages.StringField(9)  # description of why someone might want to attend
+    websafeKey      = messages.StringField(10)
 
 class SessionForms(messages.Message):
     """SessionForms -- multiple Session outbound form message"""
