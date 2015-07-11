@@ -25,7 +25,7 @@ Session objects are children of conference objects and can be created by the org
 
 Speakers at sessions must be registered users with a Profile just like attendees, so  `Session.speaker` simply points to a user_id (via the `speakerUserId` attribute). Just like Conferences, Sessions have a `maxAttendees` property and a `seatsAvailable` count which decrements as attendees register for the session.
 
-## 2 Additional Queries (Udacity project)
+### Two Additional Queries 
 
 - **getSessionsInTimeWindow(websafeConferenceKey, startTime, endTime)** -- returns a list of sessions that take place at a conference entirely within the indicated time window
 
