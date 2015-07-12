@@ -13,7 +13,7 @@ created by wesc on 2014 apr 21
 __author__ = 'wesc+api@google.com (Wesley Chun)'
 
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import endpoints
 from protorpc import messages
@@ -804,14 +804,18 @@ class ConferenceApi(remote.Service):
         # get sessions that start within the window
         sessions = Session.query(ancestor=conference_key) \
                 .order(Session.dateTime) \
-                .filter(Session.dateTime >= start, Session.dateTime < end)
+                .filter(Session.dateTime >= start, Session.dateTime <= end)
 
-        # TODO only add sessions that finish within the window
-
+        # only add sessions that finish within the window
+        sessions_in_window = []
+        for session in sessions:
+            session_length = timedelta(minutes=session.durationMinutes)
+            if session.dateTime + session_length <= end:
+                sessions_in_window.append(session)
 
         # return set of SessionForm objects associated with this Conference
         return SessionForms(
-            items=[self._copySessionToForm(session) for session in sessions]
+            items=[self._copySessionToForm(session) for session in sessions_in_window]
         )
 
 
