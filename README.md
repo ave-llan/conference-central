@@ -32,7 +32,7 @@ In addition to the descriptive properties of `displayName`, `mainEmail`, and `te
 
 ### Two Additional Queries 
 
-- **getSessionsInTimeWindow(websafeConferenceKey, startTime, endTime)** -- returns a list of sessions that take place at a conference entirely within the indicated time window
+- **getSessionsInTimeWindow(websafeConferenceKey, startTime, endTime)** -- returns a list of sessions that take place at a conference entirely within the indicated time window. `startTime` and `endTime` will be converted to Python datetime objects and must be formatted like so: `2015-10-31T17:30`.
 
 - **getSessionsWithSeatsAvailable(websafeConferenceKey)** -- returns a list of sessions at this conference with seats available
 
