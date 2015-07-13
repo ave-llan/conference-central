@@ -2,15 +2,6 @@ A cloud-based API backend server for a Conference organization application. Buil
 
 The API supports user authentication, user profiles, conference information, registration, and a number of ways in which to query the data. 
 
-## Products
-- [App Engine][1]
-
-## Language
-- [Python][2]
-
-## APIs
-- [Google Cloud Endpoints][3]
-
 # Design Choices
 
 ### Conferences
@@ -45,7 +36,14 @@ The solution is to use the inequality filter that is likely to eliminate the mos
 
 `getSessionsInTimeWindow()` (described above) faces this problem and solves it by querying for only those sessions that begin within the specified time window `[startTime, endTime)`.  Then the method iterates through these results in Python and selects only the sessions that also end within the time window.
 
+## Products
+- [App Engine][1]
 
+## Language
+- [Python][2]
+
+## APIs
+- [Google Cloud Endpoints][3]
 
 ## Setup Instructions
 1. Update the value of `application` in `app.yaml` to the app ID you
