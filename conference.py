@@ -59,7 +59,7 @@ API_EXPLORER_CLIENT_ID = endpoints.API_EXPLORER_CLIENT_ID
 MEMCACHE_ANNOUNCEMENTS_KEY = "RECENT_ANNOUNCEMENTS"
 ANNOUNCEMENT_TPL = ('Last chance to attend! The following conferences '
                     'are nearly sold out: %s')
-MEMCACHE_FEATURED_SPEAKER_KEY = "FEATERED_SPEAKERS`"
+MEMCACHE_FEATURED_SPEAKER_KEY = "FEATERED_SPEAKERS"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 DEFAULTS = {
@@ -642,9 +642,33 @@ class ConferenceApi(remote.Service):
         # create Session & return (modified) ConferenceForm
         newSession = Session(**data)
         newSession.put()
+        # if speaker given, check for Featured Speaker
+        if data['speakerUserId']:
+            self._checkFeaturedSpeaker(conference_key, data['speakerUserId'])
 
         return self._copySessionToForm(newSession)
 
+    def _checkFeaturedSpeaker(self, conference_key, speakerUserId):
+        """If there is more than one session by this speaker at this conference,
+        add a new Memcache entry that features the speaker and session names.
+        """
+        sessions = Session.query(ancestor=conference_key) \
+                .filter(Session.speakerUserId == speakerUserId) \
+                .fetch(projection=[Session.name])
+
+        # if more than one session by this speaker, create announcement
+        if len(sessions) > 1:
+            # get speaker display name
+            profile = ndb.Key(Profile, speakerUserId).get()
+            if profile:
+                displayName = profile.displayName
+            else:
+                displayName = speakerUserId
+            announcement = 'Check out these sessions by featured speaker {}: {}'.format(
+                displayName, 
+                ', '.join(session.name for session in sessions))
+            print announcement
+            memcache.set(MEMCACHE_FEATURED_SPEAKER_KEY, announcement)
 
 
     @endpoints.method(SessionForm, SessionForm, path='session',

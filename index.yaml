@@ -104,3 +104,9 @@ indexes:
   ancestor: yes
   properties:
   - name: seatsAvailable
+
+- kind: Session
+  ancestor: yes
+  properties:
+  - name: speakerUserId
+  - name: name
