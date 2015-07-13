@@ -59,6 +59,7 @@ API_EXPLORER_CLIENT_ID = endpoints.API_EXPLORER_CLIENT_ID
 MEMCACHE_ANNOUNCEMENTS_KEY = "RECENT_ANNOUNCEMENTS"
 ANNOUNCEMENT_TPL = ('Last chance to attend! The following conferences '
                     'are nearly sold out: %s')
+MEMCACHE_FEATURED_SPEAKER_KEY = "FEATERED_SPEAKERS`"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 DEFAULTS = {
@@ -623,8 +624,7 @@ class ConferenceApi(remote.Service):
         # add default values for those missing (both data model & outbound Message)
         for df in SESSION_DEFAULTS:
             if data[df] in (None, []):
-                data[df] = DEFAULTS[df]
-                setattr(request, df, DEFAULTS[df])
+                data[df] = SESSION_DEFAULTS[df]
         # convert dates from strings to DateTime objects
         if data['dateTime']:
             data['dateTime'] = datetime.strptime(data['dateTime'][:16], "%Y-%m-%dT%H:%M")
@@ -642,7 +642,9 @@ class ConferenceApi(remote.Service):
         # create Session & return (modified) ConferenceForm
         newSession = Session(**data)
         newSession.put()
+
         return self._copySessionToForm(newSession)
+
 
 
     @endpoints.method(SessionForm, SessionForm, path='session',
