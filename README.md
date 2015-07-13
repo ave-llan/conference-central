@@ -14,18 +14,18 @@ The remaining attributes are: description, topics, city, startDate, endDate, and
 ### Sessions
 Session objects are children of conference objects and can be created by the organizer of the conference. 
 
-Speakers at sessions must be registered users with a Profile just like attendees, so  `Session.speaker` simply points to a user_id (via the `speakerUserId` attribute). Just like Conferences, Sessions have a `maxAttendees` property and a `seatsAvailable` count which decrements as attendees register for the session.
+Speakers at sessions should be registered users with a Profile just like attendees, so  `Session.speaker` simply points to a user_id (via the `speakerUserId` attribute). Just like Conferences, Sessions have a `maxAttendees` property and a `seatsAvailable` count.
 
 ### Profile
 Conference attendees, speakers, and organizers are all register using the same Profile object. 
-In addition to the descriptive properties of `displayName`, `mainEmail`, and `teeShirtSize`, Profile objects have links to conferences and sessions: `conferenceKeysToAttend` and `sessionsKeysToAttend`.
+In addition to the descriptive properties of `displayName`, `mainEmail`, and `teeShirtSize`, Profile objects have links to conferences and sessions: `conferenceKeysToAttend` and `sessionsKeysToAttend`.  Finally, there is a `sessionsKeysWishlist` which holds the id of sessions the user has added to their wishlist.
 
 
 ### Two Additional Queries 
 
-- **getSessionsInTimeWindow(websafeConferenceKey, startTime, endTime)** -- returns a list of sessions that take place at a conference entirely within the indicated time window. `startTime` and `endTime` will be converted to Python datetime objects and must be formatted like so: `2015-10-31T17:30`.
+- **getSessionsInTimeWindow(websafeConferenceKey, startTime, endTime)** -- returns a list of sessions that take place at a conference entirely within the indicated time window. `startTime` and `endTime` will be converted to Python datetime objects and must be formatted like so: `2015-10-31T17:30` (for 5:30pm October 31, 2015).
 
-- **getSessionsWithSeatsAvailable(websafeConferenceKey)** -- returns a list of sessions at this conference with seats available
+- **getSessionsWithSeatsAvailable(websafeConferenceKey)** -- returns a list of sessions at this conference with seats available.
 
 
 ### A Problematic Query
