@@ -25,15 +25,26 @@ Session objects are children of conference objects and can be created by the org
 
 Speakers at sessions must be registered users with a Profile just like attendees, so  `Session.speaker` simply points to a user_id (via the `speakerUserId` attribute). Just like Conferences, Sessions have a `maxAttendees` property and a `seatsAvailable` count which decrements as attendees register for the session.
 
+### Profile
+Conference attendees, speakers, and organizers are all register using the same Profile object. 
+In addition to the descriptive properties of `displayName`, `mainEmail`, and `teeShirtSize`, Profile objects have links to conferences and sessions: `conferenceKeysToAttend` and `sessionsKeysToAttend`.
+
+
 ### Two Additional Queries 
 
 - **getSessionsInTimeWindow(websafeConferenceKey, startTime, endTime)** -- returns a list of sessions that take place at a conference entirely within the indicated time window
 
 - **getSessionsWithSeatsAvailable(websafeConferenceKey)** -- returns a list of sessions at this conference with seats available
 
-### Profile
-Conference attendees, speakers, and organizers are all register using the same Profile object. 
-In addition to the descriptive properties of `displayName`, `mainEmail`, and `teeShirtSize`, Profile objects have links to conferences and sessions: `conferenceKeysToAttend` and `sessionsKeysToAttend`.
+
+### A Problematic Query
+
+A query for all non-workshop sessions before 7pm would fail because Datastore cannot use inequality filters on multiple properties. `(Session.typeOfSession != 'workshop')` is actually implemented as `(typeOfSession < 'workshop') OR (typeOfSession > 'workshop')` thus this counts as an inequality filter. So an additional inequality filter based on time would would cuase the whole query to fail.
+
+The solution is to use the inequality filter that is likely to eliminate the most results and then do  additional filtering on the query results in Python. 
+
+`getSessionsInTimeWindow()` (described above) faces this problem and solves it by querying for only those sessions that begin within the specified time window `[startTime, endTime)`.  Then the method iterates through these results in Python and selects only the sessions that also end within the time window.
+
 
 
 ## Setup Instructions
