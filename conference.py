@@ -777,7 +777,7 @@ class ConferenceApi(remote.Service):
 
 
     @endpoints.method(SessionsInTimeWindow, SessionForms,
-            path='conference/{websafeConferenceKey}/sessionsInTimeWindow',
+            path='/sessionsInTimeWindow',
             http_method='GET', name='getSessionsInTimeWindow')
     def getSessionsInTimeWindow(self, request):
         """Given a conference (by websafeConferenceKey) return all sessions
