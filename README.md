@@ -39,7 +39,7 @@ In addition to the descriptive properties of `displayName`, `mainEmail`, and `te
 
 ### A Problematic Query
 
-A query for all non-workshop sessions before 7pm would fail because Datastore cannot use inequality filters on multiple properties. `(Session.typeOfSession != 'workshop')` is actually implemented as `(typeOfSession < 'workshop') OR (typeOfSession > 'workshop')` thus this counts as an inequality filter. So an additional inequality filter based on time would would cuase the whole query to fail.
+A query for all non-workshop sessions before 7pm would fail because Datastore cannot use inequality filters on multiple properties. `(Session.typeOfSession != 'workshop')` is actually implemented as `(typeOfSession < 'workshop') OR (typeOfSession > 'workshop')` thus this counts as an inequality filter. So an additional inequality filter based on time would would cause the whole query to fail.
 
 The solution is to use the inequality filter that is likely to eliminate the most results and then do  additional filtering on the query results in Python. 
 
