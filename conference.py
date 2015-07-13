@@ -671,6 +671,14 @@ class ConferenceApi(remote.Service):
             memcache.set(MEMCACHE_FEATURED_SPEAKER_KEY, announcement)
 
 
+    @endpoints.method(message_types.VoidMessage, StringMessage,
+            path='featuredSpeaker/get',
+            http_method='GET', name='getFeaturedSpeaker')
+    def getFeaturedSpeaker(self, request):
+        """Return Announcement from memcache."""
+        return StringMessage(data=memcache.get(MEMCACHE_FEATURED_SPEAKER_KEY) or "")
+
+
     @endpoints.method(SessionForm, SessionForm, path='session',
             http_method='POST', name='createSession')
     def createSession(self, request):
