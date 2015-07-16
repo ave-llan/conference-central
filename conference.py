@@ -642,16 +642,23 @@ class ConferenceApi(remote.Service):
         # create Session & return (modified) ConferenceForm
         newSession = Session(**data)
         newSession.put()
-        # if speaker given, check for Featured Speaker
+
+        # if speaker given, schedule Task to check for Featured Speaker
         if data['speakerUserId']:
-            self._checkFeaturedSpeaker(conference_key, data['speakerUserId'])
+            taskqueue.add(params={'websafeConferenceKey': conference_key.urlsafe(),
+                'speakerUserId': data['speakerUserId']},
+                url='/tasks/check_featured_speaker'
+            )
 
         return self._copySessionToForm(newSession)
 
-    def _checkFeaturedSpeaker(self, conference_key, speakerUserId):
+    @staticmethod
+    def _checkFeaturedSpeaker(websafeConferenceKey, speakerUserId):
         """If there is more than one session by this speaker at this conference,
         add a new Memcache entry that features the speaker and session names.
         """
+        # convert web safe key into a Key
+        conference_key = ndb.Key(urlsafe=websafeConferenceKey)
         sessions = Session.query(ancestor=conference_key) \
                 .filter(Session.speakerUserId == speakerUserId) \
                 .fetch(projection=[Session.name])
@@ -667,6 +674,7 @@ class ConferenceApi(remote.Service):
             announcement = 'Check out these sessions by featured speaker {}: {}'.format(
                 displayName, 
                 ', '.join(session.name for session in sessions))
+            print '\nFeatured Speaker announcement:'
             print announcement
             memcache.set(MEMCACHE_FEATURED_SPEAKER_KEY, announcement)
 

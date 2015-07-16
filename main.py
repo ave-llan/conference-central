@@ -20,9 +20,17 @@ from conference import ConferenceApi
 class SetAnnouncementHandler(webapp2.RequestHandler):
     def get(self):
         """Set Announcement in Memcache."""
+        print '\nSetting announcement handler!\n'
         ConferenceApi._cacheAnnouncement()
         self.response.set_status(204)
 
+class CheckFeaturedSpeakerHandler(webapp2.RequestHandler):
+    def post(self):
+        """Check if this speaker is presenting more than one session.
+        If so, set Featured Speaker announcement in Memcache."""
+        ConferenceApi._checkFeaturedSpeaker(self.request.get('websafeConferenceKey'),
+                                            self.request.get('speakerUserId'))
+        
 
 class SendConfirmationEmailHandler(webapp2.RequestHandler):
     def post(self):
@@ -41,4 +49,5 @@ class SendConfirmationEmailHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/crons/set_announcement', SetAnnouncementHandler),
     ('/tasks/send_confirmation_email', SendConfirmationEmailHandler),
+    ('/tasks/check_featured_speaker', CheckFeaturedSpeakerHandler),
 ], debug=True)
