@@ -128,6 +128,7 @@ class Session(ndb.Model):
     highlights      = ndb.StringProperty()    # description of why someone might want to attend 
 
 
+
 class SessionForm(messages.Message):
     """SessionForm -- Session outbound form message"""
     name            = messages.StringField(1)
@@ -140,6 +141,18 @@ class SessionForm(messages.Message):
     typeOfSession   = messages.StringField(8)
     highlights      = messages.StringField(9)  # description of why someone might want to attend
     websafeKey      = messages.StringField(10)
+
+
+class SessionInboundForm(messages.Message):
+    """SessionInboundForm -- Session inbound form message"""
+    name            = messages.StringField(1)
+    conferenceId    = messages.StringField(2)
+    speakerUserId   = messages.StringField(3)
+    dateTime        = messages.StringField(4)  # DateTimeField() includes both date AND time
+    durationMinutes = messages.IntegerField(5) # duration of Session in minutes
+    maxAttendees    = messages.IntegerField(6)
+    typeOfSession   = messages.StringField(7)
+    highlights      = messages.StringField(8)  # description of why someone might want to attend
 
 class SessionForms(messages.Message):
     """SessionForms -- multiple Session outbound form message"""

@@ -38,6 +38,7 @@ from models import ConferenceQueryForms
 from models import TeeShirtSize
 from models import Session
 from models import SessionForm
+from models import SessionInboundForm
 from models import SessionForms
 from models import SessionByType
 from models import SessionBySpeaker
@@ -617,9 +618,6 @@ class ConferenceApi(remote.Service):
 
         # copy ConferenceForm/ProtoRPC Message into dict
         data = {field.name: getattr(request, field.name) for field in request.all_fields()}
-        
-        # delete webSafeKey which is not an attribute of Session and only used for outbound form 
-        del data['websafeKey']
 
         # add default values for those missing (both data model & outbound Message)
         for df in SESSION_DEFAULTS:
@@ -687,7 +685,7 @@ class ConferenceApi(remote.Service):
         return StringMessage(data=memcache.get(MEMCACHE_FEATURED_SPEAKER_KEY) or "")
 
 
-    @endpoints.method(SessionForm, SessionForm, path='session',
+    @endpoints.method(SessionInboundForm, SessionForm, path='session',
             http_method='POST', name='createSession')
     def createSession(self, request):
         """Create new session."""
