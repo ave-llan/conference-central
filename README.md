@@ -2,7 +2,7 @@ A cloud-based API backend server for a Conference organization application. Buil
 
 The API supports user authentication, user profiles, conference information, registration, and a number of ways in which to query the data. 
 
-# Design Choices
+## Design
 
 ### Conferences
 Conference objects are children of a specific user and only that user may edit the conference. 
@@ -20,21 +20,6 @@ Speakers at sessions should be registered users with a Profile just like attende
 Conference attendees, speakers, and organizers are all register using the same Profile object. 
 In addition to the descriptive properties of `displayName`, `mainEmail`, and `teeShirtSize`, Profile objects have links to conferences and sessions: `conferenceKeysToAttend` and `sessionsKeysToAttend`.  Finally, there is a `sessionsKeysWishlist` which holds the id of sessions the user has added to their wishlist.
 
-
-### Two Additional Queries 
-
-- **getSessionsInTimeWindow(websafeConferenceKey, startTime, endTime)** -- returns a list of sessions that take place at a conference entirely within the indicated time window. `startTime` and `endTime` will be converted to Python datetime objects and must be formatted like so: `2015-10-31T17:30` (for 5:30pm October 31, 2015).
-
-- **getSessionsWithSeatsAvailable(websafeConferenceKey)** -- returns a list of sessions at this conference with seats available.
-
-
-### A Problematic Query
-
-A query for all non-workshop sessions before 7pm would fail because Datastore cannot use inequality filters on multiple properties. `(Session.typeOfSession != 'workshop')` is actually implemented as `(typeOfSession < 'workshop') OR (typeOfSession > 'workshop')` thus this counts as an inequality filter. So an additional inequality filter based on time would would cause the whole query to fail.
-
-The solution is to use the inequality filter that is likely to eliminate the most results and then do  additional filtering on the query results in Python. 
-
-`getSessionsInTimeWindow()` (described above) faces this problem and solves it by querying for only those sessions that begin within the specified time window `[startTime, endTime)`.  Then the method iterates through these results in Python and selects only the sessions that also end within the time window.
 
 ## Products
 - [App Engine][1]
